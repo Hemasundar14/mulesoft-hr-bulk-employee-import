@@ -154,9 +154,12 @@ WHERE run_id = :runId]]></db:sql>
 		<ee:transform doc:name="Transform Message">
             <ee:variables>
                 <ee:set-variable variableName="runId"><![CDATA[%dw 2.0
-output application/java
+output application/json
 ---
-attributes.uriParams.'runId']]></ee:set-variable>
+{
+  message: "Run updated",
+  affectedRows: payload.affectedRows
+}]]></ee:set-variable>
             </ee:variables>
         </ee:transform>
     </flow>
@@ -217,12 +220,18 @@ payload]]></ee:set-payload>
 		</ee:transform>
     </flow>
     <flow name="get:\employees\(employeeId):hr-emp-db-sys-api-config">
-        <ee:transform doc:name="Transform Message">
-            <ee:variables>
-                <ee:set-variable variableName="employeeId">attributes.uriParams.'employeeId'</ee:set-variable>
-            </ee:variables>
-        </ee:transform>
-        <logger level="INFO" message="get:\employees\(employeeId):hr-emp-db-sys-api-config" />
+		<db:select doc:name="Select" doc:id="c9a8679f-b956-4712-9d2b-4be30267a2e3" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT * FROM employees WHERE employee_id = :employeeId]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{ employeeId: attributes.uriParams.employeeId }]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="958b3409-e1db-4a2b-9b63-c8445443455f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload[0]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
     </flow>
     <flow name="post:\employees\batch:application\json:hr-emp-db-sys-api-config">
         <logger level="INFO" message="post:\employees\batch:application\json:hr-emp-db-sys-api-config" />
