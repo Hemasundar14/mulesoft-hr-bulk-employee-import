@@ -228,7 +228,19 @@ payload]]></ee:set-payload>
         <logger level="INFO" message="post:\employees\batch:application\json:hr-emp-db-sys-api-config" />
     </flow>
     <flow name="post:\import-rejects:application\json:hr-emp-db-sys-api-config">
-        <logger level="INFO" message="post:\import-rejects:application\json:hr-emp-db-sys-api-config" />
+		<db:insert doc:name="Insert" doc:id="7ddb4cde-e35c-42e1-9f50-7563f02da087" config-ref="Database_Config">
+			<db:sql ><![CDATA[INSERT INTO employee_import_rejects (run_id, record_index, employee_id, reject_code, reject_reason) VALUES (:runId, :recordIndex, :employeeId, :rejectCode, :rejectReason)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{ runId: payload.runId, recordIndex: payload.recordIndex, employeeId: payload.employeeId, rejectCode: payload.rejectCode, rejectReason: payload.rejectReason }]]]></db:input-parameters>
+		</db:insert>
+		<set-variable value="201" doc:name="Set Variable" doc:id="3c8419fa-eff4-46e9-bb4e-ae9bfe531550" variableName="httpStatus"/>
+		<ee:transform doc:name="Transform Message" doc:id="f8fdeb43-66fd-4b1c-b652-8e15f07e39e8" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{ message: "Reject saved", affectedRows: payload.affectedRows }]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
     </flow>
     <flow name="post:\import-runs:application\json:hr-emp-db-sys-api-config">
 		<db:insert doc:name="Insert" doc:id="c9785ccb-40db-4cc7-b4a7-078cb38a896a" config-ref="Database_Config">
