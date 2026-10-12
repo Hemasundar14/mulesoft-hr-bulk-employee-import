@@ -129,12 +129,36 @@ output application/json
         </error-handler>
     </flow>
     <flow name="put:\import-runs\(runId):application\json:hr-emp-db-sys-api-config">
-        <ee:transform doc:name="Transform Message">
+		<db:update doc:name="Update" doc:id="9d87a18d-990f-4022-9487-ba48feea2ba6" config-ref="Database_Config">
+			<db:sql ><![CDATA[UPDATE employee_import_runs
+SET parsed_count = :parsedCount,
+    inserted_count = :insertedCount,
+    updated_count = :updatedCount,
+    rejected_count = :rejectedCount,
+    reject_percent = :rejectPercent,
+    run_status = :runStatus,
+    reject_file_path = :rejectFilePath,
+    completed_at = NOW()
+WHERE run_id = :runId]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+  parsedCount: payload.parsedCount,
+  insertedCount: payload.insertedCount,
+  updatedCount: payload.updatedCount,
+  rejectedCount: payload.rejectedCount,
+  rejectPercent: payload.rejectPercent,
+  runStatus: payload.runStatus,
+  rejectFilePath: payload.rejectFilePath,
+  runId: attributes.uriParams.runId
+}]]]></db:input-parameters>
+		</db:update>
+		<ee:transform doc:name="Transform Message">
             <ee:variables>
-                <ee:set-variable variableName="runId">attributes.uriParams.'runId'</ee:set-variable>
+                <ee:set-variable variableName="runId"><![CDATA[%dw 2.0
+output application/java
+---
+attributes.uriParams.'runId']]></ee:set-variable>
             </ee:variables>
         </ee:transform>
-        <logger level="INFO" message="put:\import-runs\(runId):application\json:hr-emp-db-sys-api-config" />
     </flow>
     <flow name="get:\departments:hr-emp-db-sys-api-config">
 		<db:select doc:name="Select" doc:id="ae1947b6-da6f-4f5c-a7e5-a73d99036f5f" config-ref="Database_Config">
