@@ -166,7 +166,18 @@ payload]]></ee:set-payload>
         <logger level="INFO" message="get:\employees:hr-emp-db-sys-api-config" />
     </flow>
     <flow name="get:\import-runs:hr-emp-db-sys-api-config">
-        <logger level="INFO" message="get:\import-runs:hr-emp-db-sys-api-config" />
+		<db:select doc:name="Select" doc:id="f4298069-48b8-4e9c-9eb3-d9b1720a4bd2" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT run_id, file_name, run_status, completed_at FROM employee_import_runs WHERE file_name = :fileName AND file_checksum = :checksum]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{ fileName: attributes.queryParams.fileName, checksum: attributes.queryParams.checksum }]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="fe6ec1f9-f5f5-4769-ae9e-ff008c8118a3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
     </flow>
     <flow name="get:\locations:hr-emp-db-sys-api-config">
 		<db:select doc:name="Select" doc:id="390d3b74-56cf-4e79-b4a3-9131a03ab1df" config-ref="Database_Config">
