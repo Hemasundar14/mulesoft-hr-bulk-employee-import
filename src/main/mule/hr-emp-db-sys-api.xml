@@ -207,6 +207,18 @@ payload]]></ee:set-payload>
         <logger level="INFO" message="post:\import-rejects:application\json:hr-emp-db-sys-api-config" />
     </flow>
     <flow name="post:\import-runs:application\json:hr-emp-db-sys-api-config">
-        <logger level="INFO" message="post:\import-runs:application\json:hr-emp-db-sys-api-config" />
+		<db:insert doc:name="Insert" doc:id="c9785ccb-40db-4cc7-b4a7-078cb38a896a" config-ref="Database_Config">
+			<db:sql ><![CDATA[INSERT INTO employee_import_runs (run_id, file_name, file_format, file_checksum, declared_count, run_status, started_at, correlation_id) VALUES (:runId, :fileName, :fileFormat, :checksum, :declaredCount, :runStatus, NOW(), :correlationId)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{ runId: payload.runId, fileName: payload.fileName, fileFormat: payload.fileFormat, checksum: payload.fileChecksum, declaredCount: payload.declaredCount, runStatus: payload.runStatus default "STARTED", correlationId: payload.correlationId }]]]></db:input-parameters>
+		</db:insert>
+		<set-variable value="201" doc:name="Set Variable" doc:id="426b2fde-65d5-42cc-9481-0d729179b6cd" variableName="httpStatus"/>
+		<ee:transform doc:name="Transform Message" doc:id="97309737-bf72-4c40-9562-bca3d36a7371" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{ message: "Run created", affectedRows: payload.affectedRows }]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
     </flow>
 </mule>
