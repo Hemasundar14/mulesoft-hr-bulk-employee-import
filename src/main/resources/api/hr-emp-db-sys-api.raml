@@ -1,0 +1,97 @@
+#%RAML 1.0
+title: HR Employee DB System API
+version: v1
+baseUri: http://localhost:8081/api
+mediaType: application/json
+
+/departments:
+  get:
+    description: List active departments
+    responses:
+      200:
+        body:
+          application/json:
+
+/locations:
+  get:
+    description: List active locations
+    responses:
+      200:
+        body:
+          application/json:
+
+/designations:
+  get:
+    description: List designations with grade
+    responses:
+      200:
+        body:
+          application/json:
+
+/employees:
+  get:
+    description: Find employees by email
+    queryParameters:
+      email:
+        type: string
+        required: false
+    responses:
+      200:
+        body:
+          application/json:
+  /batch:
+    post:
+      description: Insert or update a batch of employees
+      body:
+        application/json:
+      responses:
+        200:
+          body:
+            application/json:
+  /{employeeId}:
+    get:
+      description: Get one employee
+      responses:
+        200:
+          body:
+            application/json:
+
+/import-runs:
+  get:
+    description: Find a run by file name and checksum
+    queryParameters:
+      fileName:
+        type: string
+      checksum:
+        type: string
+    responses:
+      200:
+        body:
+          application/json:
+  post:
+    description: Create a run record
+    body:
+      application/json:
+    responses:
+      201:
+        body:
+          application/json:
+  /{runId}:
+    put:
+      description: Update a run record
+      body:
+        application/json:
+      responses:
+        200:
+          body:
+            application/json:
+
+/import-rejects:
+  post:
+    description: Save rejected records
+    body:
+      application/json:
+    responses:
+      201:
+        body:
+          application/json:
