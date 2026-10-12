@@ -190,7 +190,17 @@ payload]]></ee:set-payload>
 		</ee:transform>
     </flow>
     <flow name="get:\employees:hr-emp-db-sys-api-config">
-        <logger level="INFO" message="get:\employees:hr-emp-db-sys-api-config" />
+		<db:select doc:name="Select" doc:id="d9c4981e-11b6-422d-9f4c-50ad18ef7445" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT * FROM employees LIMIT 100]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="ed39efa9-c4eb-41ff-88a8-0679b8cffd7f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
     </flow>
     <flow name="get:\import-runs:hr-emp-db-sys-api-config">
 		<db:select doc:name="Select" doc:id="f4298069-48b8-4e9c-9eb3-d9b1720a4bd2" config-ref="Database_Config">
