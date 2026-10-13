@@ -191,7 +191,8 @@ payload]]></ee:set-payload>
     </flow>
     <flow name="get:\employees:hr-emp-db-sys-api-config">
 		<db:select doc:name="Select" doc:id="d9c4981e-11b6-422d-9f4c-50ad18ef7445" config-ref="Database_Config">
-			<db:sql ><![CDATA[SELECT * FROM employees LIMIT 100]]></db:sql>
+			<db:sql ><![CDATA[SELECT * FROM employees WHERE (:email IS NULL OR official_email = :email) LIMIT 100]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{ email: attributes.queryParams.email }]]]></db:input-parameters>
 		</db:select>
 		<ee:transform doc:name="Transform Message" doc:id="ed39efa9-c4eb-41ff-88a8-0679b8cffd7f" >
 			<ee:message >
@@ -244,7 +245,21 @@ payload[0]]]></ee:set-payload>
 		</ee:transform>
     </flow>
     <flow name="post:\employees\batch:application\json:hr-emp-db-sys-api-config">
-        <logger level="INFO" message="post:\employees\batch:application\json:hr-emp-db-sys-api-config" />
+		<set-variable value="#[payload]" doc:name="Set Variable" doc:id="7c566db3-f4d4-4778-808f-cbd05580d3cf" variableName="rows"/>
+		<db:bulk-insert doc:name="Bulk insert" doc:id="cbcb1c73-75f8-4bbf-be12-87b40b861e56" config-ref="Database_Config">
+			<db:sql ><![CDATA[INSERT INTO employees (employee_id, first_name, last_name, date_of_birth, date_of_joining, official_email, mobile, department_key, designation, grade, location_key, employment_type, manager_key, employee_status, source_run_id) VALUES (:employee_id, :first_name, :last_name, :date_of_birth, :date_of_joining, :official_email, :mobile, :department_key, :designation, :grade, :location_key, :employment_type, :manager_key, :employee_status, :source_run_id) ON DUPLICATE KEY UPDATE first_name = VALUES(first_name), last_name = VALUES(last_name), date_of_birth = VALUES(date_of_birth), date_of_joining = VALUES(date_of_joining), official_email = VALUES(official_email), mobile = VALUES(mobile), department_key = VALUES(department_key), designation = VALUES(designation), grade = VALUES(grade), location_key = VALUES(location_key), employment_type = VALUES(employment_type), manager_key = VALUES(manager_key), employee_status = VALUES(employee_status), source_run_id = VALUES(source_run_id), updated_at = CURRENT_TIMESTAMP]]></db:sql>
+		</db:bulk-insert>
+		<ee:transform doc:name="Transform Message" doc:id="0366b0a0-1588-4262-a5aa-0d6ba13e295f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Batch processed",
+  received: sizeOf(vars.rows)
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
     </flow>
     <flow name="post:\import-rejects:application\json:hr-emp-db-sys-api-config">
 		<db:insert doc:name="Insert" doc:id="7ddb4cde-e35c-42e1-9f50-7563f02da087" config-ref="Database_Config">
