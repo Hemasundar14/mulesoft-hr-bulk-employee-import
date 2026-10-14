@@ -5,8 +5,8 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
         <http:listener-connection host="0.0.0.0" port="8081" />
     </http:listener-config>
     <apikit:config name="hr-emp-db-sys-api-config" api="hr-emp-db-sys-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
-    <configuration-properties doc:name="Configuration properties" doc:id="9f4c5f18-b93c-4e36-9cb3-a1e3414e36b8" file="config-dev.yaml" />
-	<db:config name="Database_Config" doc:name="Database Config" doc:id="25597299-ee13-4338-bfed-43732b126a83" >
+    <configuration-properties doc:name="Configuration properties" doc:id="c01088f7-0948-45c2-bff0-0f29928f4f20" file="config-dev.yaml" />
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="b5776d9e-cf53-45e4-9524-98b79b93784e" >
 		<db:my-sql-connection host="${db.host}" port="${db.port}" user="${db.user}" password="${db.password}" database="${db.name}" />
 	</db:config>
 	<flow name="hr-emp-db-sys-api-main">
@@ -129,7 +129,7 @@ output application/json
         </error-handler>
     </flow>
     <flow name="put:\import-runs\(runId):application\json:hr-emp-db-sys-api-config">
-		<db:update doc:name="Update" doc:id="9d87a18d-990f-4022-9487-ba48feea2ba6" config-ref="Database_Config">
+		<db:update doc:name="Update" doc:id="c8a5eea6-f4f5-425e-943f-c151ab9808f6" config-ref="Database_Config">
 			<db:sql ><![CDATA[UPDATE employee_import_runs
 SET parsed_count = :parsedCount,
     inserted_count = :insertedCount,
@@ -152,22 +152,22 @@ WHERE run_id = :runId]]></db:sql>
 }]]]></db:input-parameters>
 		</db:update>
 		<ee:transform doc:name="Transform Message">
-            <ee:variables>
-                <ee:set-variable variableName="runId"><![CDATA[%dw 2.0
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 {
   message: "Run updated",
   affectedRows: payload.affectedRows
-}]]></ee:set-variable>
-            </ee:variables>
+}]]></ee:set-payload>
+            </ee:message>
         </ee:transform>
     </flow>
     <flow name="get:\departments:hr-emp-db-sys-api-config">
-		<db:select doc:name="Select" doc:id="ae1947b6-da6f-4f5c-a7e5-a73d99036f5f" config-ref="Database_Config">
+		<db:select doc:name="Select" doc:id="7b2603ad-7840-469b-be34-82023fc7ed3a" config-ref="Database_Config">
 			<db:sql ><![CDATA[SELECT department_key, department_code, department_name FROM department_master WHERE is_active = TRUE]]></db:sql>
 		</db:select>
-		<ee:transform doc:name="Transform Message" doc:id="b77c62f9-787a-477d-bdf5-87a5e93768b3" >
+		<ee:transform doc:name="Transform Message" doc:id="ba502d78-c7a4-4031-97da-d98eba3f063a" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
@@ -177,10 +177,10 @@ payload]]></ee:set-payload>
 		</ee:transform>
     </flow>
     <flow name="get:\designations:hr-emp-db-sys-api-config">
-		<db:select doc:name="Select" doc:id="7fa904b6-beb4-4a74-ac80-8b8287fec300" config-ref="Database_Config">
+		<db:select doc:name="Select" doc:id="e761d476-55ed-4359-9f35-506670ebd3a1" config-ref="Database_Config">
 			<db:sql ><![CDATA[SELECT designation, grade FROM designation_master]]></db:sql>
 		</db:select>
-		<ee:transform doc:name="Transform Message" doc:id="e3eaec24-1476-4543-ac79-ad8dcbf19dce" >
+		<ee:transform doc:name="Transform Message" doc:id="3c065895-b61a-4671-ae4b-3d046dd188c6" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
@@ -189,12 +189,12 @@ payload]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
     </flow>
-    <flow name="get:\employees:hr-emp-db-sys-api-config">
-		<db:select doc:name="Select" doc:id="d9c4981e-11b6-422d-9f4c-50ad18ef7445" config-ref="Database_Config">
-			<db:sql ><![CDATA[SELECT * FROM employees WHERE (:email IS NULL OR official_email = :email) LIMIT 100]]></db:sql>
+        <flow name="get:\employees:hr-emp-db-sys-api-config">
+		<db:select doc:name="Select" doc:id="3f2f3a85-c525-4d66-842b-e159c43ec43e" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT * FROM employees WHERE (:email IS NULL OR official_email = :email) LIMIT 10000]]></db:sql>
 			<db:input-parameters ><![CDATA[#[{ email: attributes.queryParams.email }]]]></db:input-parameters>
 		</db:select>
-		<ee:transform doc:name="Transform Message" doc:id="ed39efa9-c4eb-41ff-88a8-0679b8cffd7f" >
+		<ee:transform doc:name="Transform Message" doc:id="c76e3fe4-4f9f-44f9-9fdc-c6c6ddcdf0d0" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
@@ -204,11 +204,11 @@ payload]]></ee:set-payload>
 		</ee:transform>
     </flow>
     <flow name="get:\import-runs:hr-emp-db-sys-api-config">
-		<db:select doc:name="Select" doc:id="f4298069-48b8-4e9c-9eb3-d9b1720a4bd2" config-ref="Database_Config">
+		<db:select doc:name="Select" doc:id="7b409bf3-5eb9-4817-b4f2-7aa7f04f9467" config-ref="Database_Config">
 			<db:sql ><![CDATA[SELECT run_id, file_name, run_status, completed_at FROM employee_import_runs WHERE file_name = :fileName AND file_checksum = :checksum]]></db:sql>
 			<db:input-parameters ><![CDATA[#[{ fileName: attributes.queryParams.fileName, checksum: attributes.queryParams.checksum }]]]></db:input-parameters>
 		</db:select>
-		<ee:transform doc:name="Transform Message" doc:id="fe6ec1f9-f5f5-4769-ae9e-ff008c8118a3" >
+		<ee:transform doc:name="Transform Message" doc:id="bb273efb-a11f-429d-9adc-70d4a2bb81bc" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
@@ -218,10 +218,10 @@ payload]]></ee:set-payload>
 		</ee:transform>
     </flow>
     <flow name="get:\locations:hr-emp-db-sys-api-config">
-		<db:select doc:name="Select" doc:id="390d3b74-56cf-4e79-b4a3-9131a03ab1df" config-ref="Database_Config">
+		<db:select doc:name="Select" doc:id="72888b1d-bf09-4bd9-afa4-59f219783dfb" config-ref="Database_Config">
 			<db:sql ><![CDATA[SELECT location_key, location_code, location_name FROM location_master WHERE is_active = TRUE]]></db:sql>
 		</db:select>
-		<ee:transform doc:name="Transform Message" doc:id="02654ac2-d909-43aa-9ee7-8875bd0e07a8" >
+		<ee:transform doc:name="Transform Message" doc:id="8da1d921-3f9e-49d4-9e3f-dc61adfafe7a" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
@@ -231,11 +231,11 @@ payload]]></ee:set-payload>
 		</ee:transform>
     </flow>
     <flow name="get:\employees\(employeeId):hr-emp-db-sys-api-config">
-		<db:select doc:name="Select" doc:id="c9a8679f-b956-4712-9d2b-4be30267a2e3" config-ref="Database_Config">
+		<db:select doc:name="Select" doc:id="bafaf811-f101-4081-9e42-01399cfe739b" config-ref="Database_Config">
 			<db:sql ><![CDATA[SELECT * FROM employees WHERE employee_id = :employeeId]]></db:sql>
 			<db:input-parameters ><![CDATA[#[{ employeeId: attributes.uriParams.employeeId }]]]></db:input-parameters>
 		</db:select>
-		<ee:transform doc:name="Transform Message" doc:id="958b3409-e1db-4a2b-9b63-c8445443455f" >
+		<ee:transform doc:name="Transform Message" doc:id="09667d1a-60ac-4603-b84f-d5ed5fa9db96" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
@@ -245,11 +245,12 @@ payload[0]]]></ee:set-payload>
 		</ee:transform>
     </flow>
     <flow name="post:\employees\batch:application\json:hr-emp-db-sys-api-config">
-		<set-variable value="#[payload]" doc:name="Set Variable" doc:id="7c566db3-f4d4-4778-808f-cbd05580d3cf" variableName="rows"/>
-		<db:bulk-insert doc:name="Bulk insert" doc:id="cbcb1c73-75f8-4bbf-be12-87b40b861e56" config-ref="Database_Config">
+		<set-variable value="#[payload]" doc:name="Set Variable" doc:id="6abafa6a-1d79-4868-9bcd-d6d11364243d" variableName="rows"/>
+		<db:bulk-insert doc:name="Bulk insert" doc:id="8378c8c5-c5bc-400d-aa36-2c58a8bc8d4a" config-ref="Database_Config">
+			<db:bulk-input-parameters ><![CDATA[#[payload map ($ ++ { source_run_id: $.source_run_id default "run-001" })]]]></db:bulk-input-parameters>
 			<db:sql ><![CDATA[INSERT INTO employees (employee_id, first_name, last_name, date_of_birth, date_of_joining, official_email, mobile, department_key, designation, grade, location_key, employment_type, manager_key, employee_status, source_run_id) VALUES (:employee_id, :first_name, :last_name, :date_of_birth, :date_of_joining, :official_email, :mobile, :department_key, :designation, :grade, :location_key, :employment_type, :manager_key, :employee_status, :source_run_id) ON DUPLICATE KEY UPDATE first_name = VALUES(first_name), last_name = VALUES(last_name), date_of_birth = VALUES(date_of_birth), date_of_joining = VALUES(date_of_joining), official_email = VALUES(official_email), mobile = VALUES(mobile), department_key = VALUES(department_key), designation = VALUES(designation), grade = VALUES(grade), location_key = VALUES(location_key), employment_type = VALUES(employment_type), manager_key = VALUES(manager_key), employee_status = VALUES(employee_status), source_run_id = VALUES(source_run_id), updated_at = CURRENT_TIMESTAMP]]></db:sql>
 		</db:bulk-insert>
-		<ee:transform doc:name="Transform Message" doc:id="0366b0a0-1588-4262-a5aa-0d6ba13e295f" >
+		<ee:transform doc:name="Transform Message" doc:id="d382a372-757e-48a7-984d-bf0733c43105" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
@@ -262,27 +263,43 @@ output application/json
 		</ee:transform>
     </flow>
     <flow name="post:\import-rejects:application\json:hr-emp-db-sys-api-config">
-		<db:insert doc:name="Insert" doc:id="7ddb4cde-e35c-42e1-9f50-7563f02da087" config-ref="Database_Config">
-			<db:sql ><![CDATA[INSERT INTO employee_import_rejects (run_id, record_index, employee_id, reject_code, reject_reason) VALUES (:runId, :recordIndex, :employeeId, :rejectCode, :rejectReason)]]></db:sql>
-			<db:input-parameters ><![CDATA[#[{ runId: payload.runId, recordIndex: payload.recordIndex, employeeId: payload.employeeId, rejectCode: payload.rejectCode, rejectReason: payload.rejectReason }]]]></db:input-parameters>
-		</db:insert>
-		<set-variable value="201" doc:name="Set Variable" doc:id="3c8419fa-eff4-46e9-bb4e-ae9bfe531550" variableName="httpStatus"/>
-		<ee:transform doc:name="Transform Message" doc:id="f8fdeb43-66fd-4b1c-b652-8e15f07e39e8" >
+		<choice doc:name="Is Array?">
+			<when expression="#[payload is Array]">
+				<db:bulk-insert doc:name="Bulk insert rejects" config-ref="Database_Config">
+					<db:bulk-input-parameters><![CDATA[#[payload map {
+						run_id: $.run_id,
+						record_index: $.record_index,
+						employee_id: $.employee_id,
+						reject_code: $.reject_code,
+						reject_reason: $.reject_reason
+					}]]]></db:bulk-input-parameters>
+					<db:sql><![CDATA[INSERT INTO employee_import_rejects (run_id, record_index, employee_id, reject_code, reject_reason) VALUES (:run_id, :record_index, :employee_id, :reject_code, :reject_reason)]]></db:sql>
+				</db:bulk-insert>
+			</when>
+			<otherwise>
+				<db:insert doc:name="Insert single reject" doc:id="5762691d-85c8-466d-9101-4806cedac8ef" config-ref="Database_Config">
+					<db:sql><![CDATA[INSERT INTO employee_import_rejects (run_id, record_index, employee_id, reject_code, reject_reason) VALUES (:runId, :recordIndex, :employeeId, :rejectCode, :rejectReason)]]></db:sql>
+					<db:input-parameters><![CDATA[#[{ runId: payload.run_id, recordIndex: payload.record_index, employeeId: payload.employee_id, rejectCode: payload.reject_code, rejectReason: payload.reject_reason }]]]></db:input-parameters>
+				</db:insert>
+			</otherwise>
+		</choice>
+		<set-variable value="201" doc:name="Set Variable" doc:id="22f410ad-6ec3-4969-9251-de118e2a9239" variableName="httpStatus"/>
+		<ee:transform doc:name="Transform Message" doc:id="f546b205-1ee3-4ff4-b5f1-6aad9efc08c1" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
 ---
-{ message: "Reject saved", affectedRows: payload.affectedRows }]]></ee:set-payload>
+{ message: "Reject(s) saved" }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
     </flow>
     <flow name="post:\import-runs:application\json:hr-emp-db-sys-api-config">
-		<db:insert doc:name="Insert" doc:id="c9785ccb-40db-4cc7-b4a7-078cb38a896a" config-ref="Database_Config">
+		<db:insert doc:name="Insert" doc:id="9eccec5d-3788-4625-be15-7964308e2935" config-ref="Database_Config">
 			<db:sql ><![CDATA[INSERT INTO employee_import_runs (run_id, file_name, file_format, file_checksum, declared_count, run_status, started_at, correlation_id) VALUES (:runId, :fileName, :fileFormat, :checksum, :declaredCount, :runStatus, NOW(), :correlationId)]]></db:sql>
 			<db:input-parameters ><![CDATA[#[{ runId: payload.runId, fileName: payload.fileName, fileFormat: payload.fileFormat, checksum: payload.fileChecksum, declaredCount: payload.declaredCount, runStatus: payload.runStatus default "STARTED", correlationId: payload.correlationId }]]]></db:input-parameters>
 		</db:insert>
-		<set-variable value="201" doc:name="Set Variable" doc:id="426b2fde-65d5-42cc-9481-0d729179b6cd" variableName="httpStatus"/>
-		<ee:transform doc:name="Transform Message" doc:id="97309737-bf72-4c40-9562-bca3d36a7371" >
+		<set-variable value="201" doc:name="Set Variable" doc:id="5ab92217-84a2-4bb6-8015-a4c47d6c5811" variableName="httpStatus"/>
+		<ee:transform doc:name="Transform Message" doc:id="1b092726-c243-4145-b37a-35f171ec0cf7" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
